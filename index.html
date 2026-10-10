@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Tiers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card: #111113;
+            --accent: #fbbf24;
+            --border: #222;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 40px;
+            background: #0f0f11;
+            border-bottom: 1px solid var(--border);
+        }
+        .logo {
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+        .admin-btn {
+            background: #1a1a1c;
+            color: white;
+            border: 1px solid #333;
+            padding: 9px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .admin-btn:hover { background: #252528; }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 40px;
+            background: #0f0f11;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+        }
+        .search {
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
+            padding: 11px 16px;
+            background: #1a1a1c;
+            border: 1px solid #2a2a2c;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+        }
+        .search:focus { outline: none; border-color: var(--accent); }
+        .stats { color: #999; font-size: 0.9rem; white-space: nowrap; }
+        .top-player { color: var(--accent); font-weight: 600; font-size: 0.95rem; }
+        .discord-box {
+            margin-left: auto;
+            background: #1a1a1c;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            border: 1px solid #2a2a2c;
+        }
+        .discord-box a { color: #58a6ff; text-decoration: none; font-weight: 600; }
+        .tabs {
+            display: flex;
+            gap: 6px;
+            padding: 12px 40px;
+            background: #0f0f11;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            background: #1a1a1c;
+            border-radius: 8px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #ccc;
+            border: 1px solid transparent;
+            transition: 0.15s;
+        }
+        .tab:hover { background: #252528; color: white; }
+        .tab.active {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+        }
+        .tab img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            background: transparent;
+        }
+        .admin-controls {
+            display: none;
+            gap: 10px;
+            padding: 12px 40px 0;
+            flex-wrap: wrap;
+        }
+        .admin-mode .admin-controls { display: flex; }
+        .admin-controls button {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-add { background: #22c55e; color: #000; }
+        .btn-discord { background: #5865F2; color: white; }
+        #playerList { padding: 10px 0 40px; }
+        .player-row {
+            display: flex;
+            align-items: center;
+            background: var(--card);
+            margin: 8px 40px;
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: 1px solid var(--border);
+            transition: 0.15s;
+        }
+        .player-row:hover { border-color: #333; }
+        .player-row.top { border-left: 4px solid var(--accent); }
+        .rank-num {
+            font-size: 1.8rem;
+            font-weight: 900;
+            width: 58px;
+            text-align: center;
+            color: #666;
+        }
+        .player-row.top .rank-num { color: var(--accent); }
+        .skin {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-right: 16px;
+            background: #1a1a1c;
+        }
+        .skin img {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+        .name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            flex: 1;
+            min-width: 120px;
+        }
+        .points {
+            color: #888;
+            margin-right: 24px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .tiers {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            max-width: 480px;
+        }
+        .tier-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #1a1a1c;
+            color: #aaa;
+            border: 1px solid #2a2a2c;
+            white-space: nowrap;
+        }
+        .tier-badge.ht1, .tier-badge.lt1 { background: #fbbf24; color: #000; border-color: #f59e0b; }
+        .tier-badge.ht2, .tier-badge.lt2 { background: #a78bfa; color: #000; border-color: #8b5cf6; }
+        .tier-badge.ht3, .tier-badge.lt3 { background: #60a5fa; color: #000; border-color: #3b82f6; }
+        .tier-badge.ht4, .tier-badge.lt4 { background: #34d399; color: #000; border-color: #10b981; }
+        .tier-badge.ht5, .tier-badge.lt5 { background: #94a3b8; color: #000; border-color: #64748b; }
+        .admin-actions {
+            display: flex;
+            gap: 6px;
+            margin-left: 12px;
+        }
+        .admin-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-edit { background: #3b82f6; color: white; }
+        .btn-delete { background: #ef4444; color: white; }
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #555;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+        footer a { color: #888; }
+        .empty {
+            text-align: center;
+            padding: 80px 20px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #161618;
+            border: 1px solid #333;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 22px;
+            border-bottom: 1px solid #2a2a2c;
+        }
+        .modal-header h2 { font-size: 1.25rem; font-weight: 700; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: white; }
+        .modal-body { padding: 20px 22px; }
+        .rank-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            gap: 12px;
+        }
+        .rank-row label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            min-width: 110px;
+        }
+        .rank-row select {
+            flex: 1;
+            padding: 10px 12px;
+            background: #1a1a1c;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 22px;
+            border-top: 1px solid #2a2a2c;
+        }
+        .modal-footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .btn-cancel { background: #2a2a2c; color: white; }
+        .btn-save { background: var(--accent); color: #000; }
+        @media (max-width: 768px) {
+            header, .top-bar, .tabs, .admin-controls { padding-left: 16px; padding-right: 16px; }
+            .player-row { margin: 8px 12px; flex-wrap: wrap; gap: 8px; }
+            .rank-num { width: 42px; font-size: 1.4rem; }
+            .name { font-size: 1.05rem; }
+            .tiers { max-width: 100%; }
+            .discord-box { margin-left: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">Modern Tiers</div>
+    <button class="admin-btn" onclick="checkAdmin()">Admin</button>
+</header>
+<div class="top-bar">
+    <input type="text" id="searchBar" class="search" placeholder="Search players..." onkeyup="render()">
+    <div class="stats" id="playerCount">0 PLAYERS</div>
+    <div class="stats" id="categoryCount">10 CATEGORIES</div>
+    <div class="top-player" id="topPlayer">—</div>
+    <div class="discord-box">
+        DISCORD SERVER<br>
+        <a href="#" id="discordLink" target="_blank">Loading...</a>
+    </div>
+</div>
+<div class="tabs" id="tabs">
+    <div class="tab active" data-cat="Overall">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/nether_star.png" alt="">
+        OVERALL
+    </div>
+    <div class="tab" data-cat="Vanilla">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/end_crystal.png" alt="">
+        Vanilla
+    </div>
+    <div class="tab" data-cat="UHC">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/golden_apple.png" alt="">
+        UHC
+    </div>
+    <div class="tab" data-cat="Pot">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/splash_potion.png" alt="">
+        Pot
+    </div>
+    <div class="tab" data-cat="NethOP">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/netherite_sword.png" alt="">
+        NethOP
+    </div>
+    <div class="tab" data-cat="SMP">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cpath fill='%238b6914' d='M3 2h10v2H3z'/%3E%3Cpath fill='%23c4a35a' d='M4 2h8v1H4z'/%3E%3Cpath fill='%236b4f12' d='M2 4h12v6H2z'/%3E%3Cpath fill='%238b6914' d='M3 4h10v5H3z'/%3E%3Cpath fill='%23d6b25e' d='M4 5h8v3H4z'/%3E%3Cpath fill='%235c4030' d='M7 5h2v4H7zM5 6h6v1H5z'/%3E%3Cpath fill='%236b4f12' d='M4 10h8v1H4z'/%3E%3Cpath fill='%234a3510' d='M5 11h6v1H5zM6 12h4v1H6zM7 13h2v1H7z'/%3E%3Cpath fill='%239a9a9a' d='M1 3h1v7H1zM14 3h1v7h-1z'/%3E%3C/svg%3E" alt="">
+        SMP
+    </div>
+    <div class="tab" data-cat="Diamond SMP">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/block/cobweb.png" alt="">
+        Diamond SMP
+    </div>
+    <div class="tab" data-cat="Sword">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/diamond_sword.png" alt="">
+        Sword
+    </div>
+    <div class="tab" data-cat="Axe">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/diamond_axe.png" alt="">
+        Axe
+    </div>
+    <div class="tab" data-cat="Mace">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.3/assets/minecraft/textures/item/mace.png" alt="">
+        Mace
+    </div>
+    <div class="tab" data-cat="Spear">
+        <img src="https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.11/assets/minecraft/textures/item/diamond_spear.png" alt="">
+        Spear
+    </div>
+</div>
+<div class="admin-controls">
+    <button class="btn-add" onclick="addNewPlayer()">+ Add Player</button>
+    <button class="btn-discord" onclick="editDiscord()">Edit Discord</button>
+</div>
+<div id="playerList"></div>
+<footer>
+    Player skins from <a href="https://mc-heads.net" target="_blank">MC-Heads</a>
+</footer>
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Edit Player</h2>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save" onclick="savePlayerRanks()">Save Changes</button>
+        </div>
+    </div>
+</div>
+<script>
+(function() {
+    const categories = ["Vanilla","UHC","Pot","NethOP","SMP","Diamond SMP","Sword","Axe","Mace","Spear"];
+    const rankOptions = ["HT1","LT1","HT2","LT2","HT3","LT3","HT4","LT4","HT5","LT5","None"];
+    const rankPoints = {
+        "HT1":60,"LT1":45,"HT2":30,"LT2":20,"HT3":10,"LT3":6,
+        "HT4":4,"LT4":3,"HT5":2,"LT5":1,"None":0
+    };
+    const STORAGE_PLAYERS = "moderntiers_players_v1";
+    const STORAGE_DISCORD = "moderntiers_discord_v1";
+    const ADMIN_PASSWORD = "AdminAbuse";
+
+    let players = [];
+    let isAdmin = false;
+    let currentCategory = "Overall";
+    let editingPlayerId = null;
+    let currentDiscord = "https://discord.gg/x2fBWYB547";
+
+    function safeId(name) {
+        return String(name).replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "");
+    }
+
+    function loadData() {
+        try {
+            const raw = localStorage.getItem(STORAGE_PLAYERS);
+            players = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(players)) players = [];
+        } catch (e) { players = []; }
+        try {
+            const d = localStorage.getItem(STORAGE_DISCORD);
+            if (d) currentDiscord = d;
+        } catch (e) {}
+        updateDiscordDisplay(currentDiscord);
+    }
+
+    function savePlayers() {
+        localStorage.setItem(STORAGE_PLAYERS, JSON.stringify(players));
+    }
+
+    function updateDiscordDisplay(link) {
+        currentDiscord = link || "https://discord.gg/x2fBWYB547";
+        const el = document.getElementById("discordLink");
+        if (el) {
+            el.href = currentDiscord;
+            el.textContent = currentDiscord;
+        }
+    }
+
+    document.getElementById("tabs").addEventListener("click", function(e) {
+        const tab = e.target.closest(".tab");
+        if (!tab) return;
+        document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("active"); });
+        tab.classList.add("active");
+        currentCategory = tab.dataset.cat;
+        render();
+    });
+
+    window.checkAdmin = function() {
+        const pass = prompt("Enter Admin Password:");
+        if (pass === ADMIN_PASSWORD) {
+            isAdmin = true;
+            document.body.classList.add("admin-mode");
+            alert("Admin Mode Activated");
+            render();
+        } else if (pass !== null) {
+            alert("Wrong Password");
+        }
+    };
+
+    window.addNewPlayer = function() {
+        if (!isAdmin) return;
+        const name = prompt("Enter new player name:");
+        if (!name || !name.trim()) return;
+        const cleanId = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (!cleanId) return alert("Invalid name");
+        if (players.some(function(p) { return p.id === cleanId; })) return alert("Player already exists");
+        const ranks = {};
+        categories.forEach(function(c) { ranks[c] = "None"; });
+        players.push({ id: cleanId, name: name.trim(), ranks: ranks });
+        savePlayers();
+        render();
+    };
+
+    window.editDiscord = function() {
+        if (!isAdmin) return;
+        const newLink = prompt("Enter new Discord invite link:", currentDiscord);
+        if (newLink === null || !newLink.trim()) return;
+        currentDiscord = newLink.trim();
+        localStorage.setItem(STORAGE_DISCORD, currentDiscord);
+        updateDiscordDisplay(currentDiscord);
+        alert("Discord updated");
+    };
+
+    window.openEditModal = function(id) {
+        if (!isAdmin) return;
+        const p = players.find(function(pl) { return pl.id === id; });
+        if (!p) return;
+        editingPlayerId = id;
+        document.getElementById("modalTitle").textContent = "Edit " + p.name;
+        const body = document.getElementById("modalBody");
+        body.innerHTML = "";
+        categories.forEach(function(cat) {
+            const current = (p.ranks && p.ranks[cat]) || "None";
+            var opts = "";
+            rankOptions.forEach(function(r) {
+                opts += '<option value="' + r + '"' + (r === current ? " selected" : "") + ">" + r + "</option>";
+            });
+            body.innerHTML +=
+                '<div class="rank-row">' +
+                "<label>" + cat + "</label>" +
+                '<select id="rank-' + safeId(cat) + '">' + opts + "</select>" +
+                "</div>";
+        });
+        document.getElementById("editModal").classList.add("active");
+    };
+
+    window.closeModal = function() {
+        document.getElementById("editModal").classList.remove("active");
+        editingPlayerId = null;
+    };
+
+    window.savePlayerRanks = function() {
+        if (!editingPlayerId) return;
+        const p = players.find(function(pl) { return pl.id === editingPlayerId; });
+        if (!p) return;
+        const newRanks = {};
+        categories.forEach(function(cat) {
+            const el = document.getElementById("rank-" + safeId(cat));
+            newRanks[cat] = el ? el.value : "None";
+        });
+        p.ranks = newRanks;
+        savePlayers();
+        closeModal();
+        render();
+    };
+
+    document.getElementById("editModal").addEventListener("click", function(e) {
+        if (e.target.id === "editModal") closeModal();
+    });
+
+    window.deletePlayer = function(id, name) {
+        if (!isAdmin) return;
+        if (confirm("Delete " + name + "?")) {
+            players = players.filter(function(p) { return p.id !== id; });
+            savePlayers();
+            render();
+        }
+    };
+
+    function getScore(p) {
+        if (!p.ranks) return 0;
+        return Object.values(p.ranks).reduce(function(s, r) { return s + (rankPoints[r] || 0); }, 0);
+    }
+
+    function getCategoryRank(p, cat) {
+        return (p.ranks && p.ranks[cat]) || "None";
+    }
+
+    window.render = function() {
+        const query = document.getElementById("searchBar").value.toLowerCase().trim();
+        const list = document.getElementById("playerList");
+        list.innerHTML = "";
+        var filtered = players.filter(function(p) {
+            return p.name && p.name.toLowerCase().includes(query);
+        });
+        if (currentCategory !== "Overall") {
+            filtered = filtered.filter(function(p) {
+                return getCategoryRank(p, currentCategory) !== "None";
+            });
+        }
+        filtered.sort(function(a, b) {
+            if (currentCategory === "Overall") return getScore(b) - getScore(a);
+            return (rankPoints[getCategoryRank(b, currentCategory)] || 0) -
+                   (rankPoints[getCategoryRank(a, currentCategory)] || 0);
+        });
+        document.getElementById("playerCount").textContent = players.length + " PLAYERS";
+        document.getElementById("categoryCount").textContent = categories.length + " CATEGORIES";
+        if (players.length > 0) {
+            const top = players.slice().sort(function(a, b) { return getScore(b) - getScore(a); })[0];
+            document.getElementById("topPlayer").textContent = top.name + " — TOP PLAYER";
+        } else {
+            document.getElementById("topPlayer").textContent = "—";
+        }
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="empty">No players found.</div>';
+            return;
+        }
+        filtered.forEach(function(p, i) {
+            var tierHTML = "";
+            if (currentCategory === "Overall") {
+                categories.forEach(function(cat) {
+                    const rank = getCategoryRank(p, cat);
+                    if (rank !== "None") {
+                        tierHTML += '<span class="tier-badge ' + rank.toLowerCase() + '">' + cat + ": " + rank + "</span>";
+                    }
+                });
+            } else {
+                const rank = getCategoryRank(p, currentCategory);
+                tierHTML = '<span class="tier-badge ' + rank.toLowerCase() + '" style="font-size:0.95rem;padding:5px 12px">' + rank + "</span>";
+            }
+            if (!tierHTML) tierHTML = '<span style="color:#555">No ranks</span>';
+            var adminBtns = isAdmin ? (
+                '<div class="admin-actions">' +
+                '<button class="btn-edit" onclick="openEditModal(\'' + p.id + '\')">Edit</button>' +
+                '<button class="btn-delete" onclick="deletePlayer(\'' + p.id + '\',\'' + String(p.name).replace(/'/g, "\\'") + '\')">Delete</button>' +
+                "</div>"
+            ) : "";
+            list.innerHTML +=
+                '<div class="player-row ' + (i === 0 ? "top" : "") + '">' +
+                '<div class="rank-num">' + (i + 1) + "</div>" +
+                '<div class="skin"><img src="https://mc-heads.net/avatar/' + encodeURIComponent(p.name) + '/100" loading="lazy" alt=""></div>' +
+                '<div class="name">' + p.name + "</div>" +
+                '<div class="points">' + (currentCategory === "Overall" ? getScore(p) + " pts" : "") + "</div>" +
+                '<div class="tiers">' + tierHTML + "</div>" +
+                adminBtns +
+                "</div>";
+        });
+    };
+
+    loadData();
+    render();
+})();
+</script>
+</body>
+</html>
